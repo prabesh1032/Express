@@ -1,235 +1,213 @@
 // ============================================================
-//  EXPRESS.JS: BASICS — ROUTING & CRUD
+//  EXPRESS.JS: COMPLETE CRUD API
 //  Day 8 — Express — MERN Stack Learning
 // ============================================================
-
-// Express = minimal web framework built ON TOP of Node's http module
-// Gives you: clean routing, middleware, body parsing, error handling
-//
-// Install: npm install express
-// Run:     node index.js  OR  nodemon index.js (auto-restart on save)
 
 import express from "express";
 const app = express();
 
+
 // ============================================================
-//  ESSENTIAL MIDDLEWARE
+//  MIDDLEWARE
 // ============================================================
 
-// parse incoming JSON body (req.body won't work without this)
-app.use(express.json());
-
-// parse URL-encoded form data (HTML form submissions)
-app.use(express.urlencoded({
-    extended: true
-}));
+app.use(express.json());                         // parse JSON body -> req.body
+app.use(express.urlencoded({ extended: true })); // parse form data
 
 
 // ============================================================
-//  HOW ROUTING WORKS
+//  IN-MEMORY DATA (simulating database before MongoDB)
 // ============================================================
 
-// app.METHOD(path, handler)
-// METHOD = get / post / put / patch / delete
-// path   = URL string
-// handler= (req, res) => {}
-//
-// Express matches METHOD + PATH together — completely separate:
-// GET  /users  and  POST  /users  are TWO different routes
+let users = [
+    { id: 1, name: "Ram",  email: "ram@gmail.com" },
+    { id: 2, name: "Sita", email: "sita@gmail.com" },
+];
+
+let products = [
+    { id: 1, name: "Laptop", price: 1200, category: "Electronics" },
+    { id: 2, name: "Shirt",  price: 50,   category: "Clothing" },
+];
 
 
 // ============================================================
-//  HOME ROUTE
+//  HOME
 // ============================================================
 
 app.get("/", (req, res) => {
-    res.status(200).json({
-        message: "Welcome to Express API"
-    });
+    res.status(200).json({ message: "Welcome to Express API" });
 });
 
 
 // ============================================================
-//  USERS — CRUD ROUTES
+//  USERS — FULL CRUD
 // ============================================================
 
-// READ — get all users
+// GET /users — all users with optional query filter/pagination
 app.get("/users", (req, res) => {
-    const users = [{
-            id: 1,
-            name: "Ram",
-            email: "ram@gmail.com"
-        },
-        {
-            id: 2,
-            name: "Sita",
-            email: "sita@gmail.com"
-        },
-    ];
-    res.status(200).json(users);
+    console.log("method:      ", req.method);      // "GET"
+    console.log("url:         ", req.url);          // "/users?name=Ram"
+    console.log("path:        ", req.path);         // "/users"
+    console.log("originalUrl: ", req.originalUrl);  // "/users?name=Ram"
+    console.log("query:       ", req.query);        // { name: "Ram" }
+
+    const { name, page = 1, limit = 10 } = req.query;
+
+    let result = [...users];
+    if (name) {
+        result = result.filter(u =>
+            u.name.toLowerCase().includes(name.toLowerCase())
+        );
+    }
+
+    res.status(200).json({
+        total: result.length,
+        page: Number(page),
+        limit: Number(limit),
+        users: result,
+    });
 });
 
-// READ — get single user by ID (URL param)
+// GET /users/:id — single user
 app.get("/users/:id", (req, res) => {
-    const {
-        id
-    } = req.params; // extract :id from URL
-    res.status(200).json({
-        message: `Get user with id: ${id}`
-    });
+    console.log("params:", req.params); // { id: "1" }
+    const { id } = req.params;
+    const user   = users.find(u => u.id === Number(id));
+
+    if (!user) return res.status(404).json({ message: `User ${id} not found` });
+    res.status(200).json(user);
 });
 
-// CREATE — create new user
+// POST /users — create user
 app.post("/users", (req, res) => {
-    const {
-        name,
-        email,
-        password
-    } = req.body; // data from request body
-    // normally: save to DB here
-    res.status(201).json({
-        message: "User created",
-        user: {
-            name,
-            email
-        }
-    });
+    console.log("body:", req.body); // { name: "Hari", email: "hari@gmail.com" }
+    const { name, email } = req.body;
+
+    if (!name || !email) {
+        return res.status(400).json({ message: "name and email are required" });
+    }
+
+    const newUser = { id: users.length + 1, name, email };
+    users.push(newUser);
+    res.status(201).json({ message: "User created", user: newUser });
 });
 
-// UPDATE (full replace) — update entire user
+// PUT /users/:id — full update (replace entire object)
 app.put("/users/:id", (req, res) => {
-    const {
-        id
-    } = req.params;
-    const userData = req.body;
-    res.status(200).json({
-        message: `User ${id} updated`,
-        data: userData
-    });
+    const { id }      = req.params;
+    const { name, email } = req.body;
+
+    const index = users.findIndex(u => u.id === Number(id));
+    if (index === -1) return res.status(404).json({ message: `User ${id} not found` });
+
+    users[index] = { id: Number(id), name, email }; // replaces entire user
+    res.status(200).json({ message: `User ${id} updated`, user: users[index] });
 });
 
-// UPDATE (partial) — update only specific fields
+// PATCH /users/:id — partial update (only sent fields)
 app.patch("/users/:id", (req, res) => {
-    const {
-        id
-    } = req.params;
+    const { id } = req.params;
     const updates = req.body;
-    res.status(200).json({
-        message: `User ${id} partially updated`,
-        updates
-    });
+
+    const index = users.findIndex(u => u.id === Number(id));
+    if (index === -1) return res.status(404).json({ message: `User ${id} not found` });
+
+    users[index] = { ...users[index], ...updates }; // merges only changed fields
+    res.status(200).json({ message: `User ${id} partially updated`, user: users[index] });
 });
 
-// DELETE — delete a user
+// DELETE /users/:id — delete user
 app.delete("/users/:id", (req, res) => {
-    const {
-        id
-    } = req.params;
-    res.status(200).json({
-        message: `User ${id} deleted`
-    });
+    const { id } = req.params;
+    const index  = users.findIndex(u => u.id === Number(id));
+
+    if (index === -1) return res.status(404).json({ message: `User ${id} not found` });
+
+    const deleted = users.splice(index, 1);
+    res.status(200).json({ message: `User ${id} deleted`, user: deleted[0] });
 });
 
 
 // ============================================================
-//  PRODUCTS — CRUD ROUTES
+//  PRODUCTS — FULL CRUD
 // ============================================================
 
-app.get("/products", (req, res) => res.status(200).json({
-    message: "All products"
-}));
-app.get("/products/:id", (req, res) => res.status(200).json({
-    message: `Product ${req.params.id}`
-}));
-app.post("/products", (req, res) => res.status(201).json({
-    message: "Product created",
-    data: req.body
-}));
-app.put("/products/:id", (req, res) => res.status(200).json({
-    message: `Product ${req.params.id} updated`
-}));
-app.delete("/products/:id", (req, res) => res.status(200).json({
-    message: `Product ${req.params.id} deleted`
-}));
-
-
-// ============================================================
-//  req OBJECT — what you can read from the request
-// ============================================================
-
-app.get("/demo", (req, res) => {
-    console.log(req.params); // URL params      -> /users/:id  -> { id: "1" }
-    console.log(req.query); // query string    -> /search?q=laptop -> { q: "laptop" }
-    console.log(req.body); // request body    -> POST/PUT JSON data
-    console.log(req.headers); // request headers -> Content-Type, Authorization etc
-    console.log(req.method); // "GET", "POST", "PUT", "DELETE"
-    console.log(req.url); // "/demo"
-
-    res.json({
-        message: "demo route"
-    });
+app.get("/products", (req, res) => {
+    const { category, minPrice, maxPrice } = req.query;
+    let result = [...products];
+    if (category) result = result.filter(p => p.category === category);
+    if (minPrice) result = result.filter(p => p.price >= Number(minPrice));
+    if (maxPrice) result = result.filter(p => p.price <= Number(maxPrice));
+    res.status(200).json({ total: result.length, products: result });
 });
 
-// ⚠️  URL params  (/users/:id)      -> req.params.id  — part of the URL path
-// ⚠️  Query string (/search?q=ram)  -> req.query.q    — after the ? in URL
-// ⚠️  Body         (POST data)      -> req.body       — needs express.json() middleware
-
-
-// ============================================================
-//  res OBJECT — what you can send back
-// ============================================================
-
-// res.json(data)         -> send JSON response (most common in APIs)
-// res.send("text/html")  -> send text or HTML
-// res.status(404)        -> set status code (chain with .json() or .send())
-// res.redirect("/login") -> redirect to another route
-// res.sendFile(path)     -> send a file (HTML file for serving frontend)
-
-
-// ============================================================
-//  QUERY PARAMS EXAMPLE
-// ============================================================
-
-// GET /search?q=laptop&category=electronics
-app.get("/search", (req, res) => {
-    const {
-        q,
-        category
-    } = req.query;
-    res.status(200).json({
-        message: "Search results",
-        query: q,
-        category: category,
-    });
+app.get("/products/:id", (req, res) => {
+    const product = products.find(p => p.id === Number(req.params.id));
+    if (!product) return res.status(404).json({ message: "Product not found" });
+    res.status(200).json(product);
 });
-// visit: http://localhost:8080/search?q=laptop&category=electronics
+
+app.post("/products", (req, res) => {
+    const { name, price, category } = req.body;
+    if (!name || !price) return res.status(400).json({ message: "name and price required" });
+    const newProduct = { id: products.length + 1, name, price, category };
+    products.push(newProduct);
+    res.status(201).json({ message: "Product created", product: newProduct });
+});
+
+app.put("/products/:id", (req, res) => {
+    const index = products.findIndex(p => p.id === Number(req.params.id));
+    if (index === -1) return res.status(404).json({ message: "Product not found" });
+    products[index] = { id: Number(req.params.id), ...req.body };
+    res.status(200).json({ message: "Product updated", product: products[index] });
+});
+
+app.delete("/products/:id", (req, res) => {
+    const index = products.findIndex(p => p.id === Number(req.params.id));
+    if (index === -1) return res.status(404).json({ message: "Product not found" });
+    const deleted = products.splice(index, 1);
+    res.status(200).json({ message: "Product deleted", product: deleted[0] });
+});
 
 
 // ============================================================
-//  REST API ROUTE CONVENTIONS (industry standard)
+//  POSTS & COMMENTS
 // ============================================================
 
-//  Method  | Path          | Action
-//  --------|---------------|-------------------------------
-//  GET     | /users        | get ALL users
-//  GET     | /users/:id    | get ONE user
-//  POST    | /users        | create a new user
-//  PUT     | /users/:id    | replace entire user
-//  PATCH   | /users/:id    | update specific fields
-//  DELETE  | /users/:id    | delete a user
+app.get("/posts",    (req, res) => res.status(200).json({ message: "All posts" }));
+app.get("/comments", (req, res) => res.status(200).json({ message: "All comments" }));
 
-// ⚠️  REST convention: NO action words in URLs
-// BAD:  POST /users/create   GET /users/getAll  DELETE /users/deleteUser
-// GOOD: POST /users          GET /users          DELETE /users/:id
+
+// ============================================================
+//  req OBJECT — QUICK REFERENCE
+// ============================================================
+
+//  Property         | What it gives you                  | Example
+//  -----------------|------------------------------------|---------------------------
+//  req.method       | HTTP method                        | "GET"
+//  req.url          | full URL with query string         | "/users?page=1"
+//  req.originalUrl  | same (differs in nested routers)   | "/users?page=1"
+//  req.path         | path only, no query string         | "/users"
+//  req.params       | dynamic route values               | { id: "5" }
+//  req.query        | query string values (all strings)  | { page: "1", name: "Ram" }
+//  req.body         | JSON request body                  | { name: "Ram", email: "..." }
+
+//  WHEN TO USE WHAT:
+//  params -> "which one?"    /users/:id
+//  query  -> "filter/sort?"  /users?page=1&name=Ram
+//  body   -> "what data?"    POST { name, email, password }
+
+//  REST CONVENTION:
+//  BAD: POST /users/create   GET /users/getAll   DELETE /users/delete
+//  GOOD: POST /users         GET /users          DELETE /users/:id
 
 
 // ============================================================
 //  START SERVER
 // ============================================================
 
-const PORT = 8080;
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+app.listen(8080, () => {
+    console.log("Server running at http://localhost:8080");
     console.log("Press Ctrl+C to stop");
 });
 
@@ -243,26 +221,29 @@ app.listen(PORT, () => {
 //     -> Adds clean routing, middleware, error handling on top of http module
 
 // Q2: Difference between req.params, req.query, req.body?
-//     -> params: /users/:id     -> { id: "1" }        part of URL path
-//     -> query:  /search?q=ram  -> { q: "ram" }       after ? in URL
-//     -> body:   POST data      -> { name: "Ram" }     JSON body of request
+//     -> params: /users/:id     -> { id: "5" }      — identifies which resource
+//     -> query:  /users?name=Ram -> { name: "Ram" }  — filtering/sorting/pagination
+//     -> body:   POST data      -> { name, email }   — data to create/update
 
-// Q3: Why is express.json() needed?
-//     -> Without it, req.body is undefined
-//     -> It parses the incoming JSON body and attaches it to req.body
+// Q3: Why is express.json() required?
+//     -> Without it, req.body is always undefined
+//     -> Parses raw JSON bytes and attaches to req.body
 
 // Q4: Difference between PUT and PATCH?
-//     -> PUT: replace the ENTIRE resource (all fields required)
-//     -> PATCH: update only the FIELDS you send
+//     -> PUT:   replaces ENTIRE object  users[i] = { id, name, email }
+//     -> PATCH: merges only sent fields users[i] = { ...users[i], ...updates }
 
 // Q5: What status code should POST return on success?
-//     -> 201 Created (not 200 OK — 201 is specifically for resource creation)
+//     -> 201 Created — specifically for new resource creation (not 200)
 
-// Q6: What is wrong with POST /users/create?
-//     -> REST convention says don't put action verbs in URLs
-//     -> Method (POST) already says it's creating
-//     -> Correct: POST /users
+// Q6: Why are verbs wrong in REST URLs?
+//     -> HTTP method already describes the action
+//     -> POST /users means CREATE — no need for /users/create
 
-// Q7: How do you send a JSON response in Express?
-//     -> res.status(200).json({ key: value })
-//     -> Automatically sets Content-Type: application/json header
+// Q7: What does req.query always return? Any gotcha?
+//     -> Always an object {} even if no query params
+//     -> All values are STRINGS — must convert: Number(req.query.page)
+
+// Q8: Difference between req.url and req.path?
+//     -> url:  "/users?page=1"  (includes query string)
+//     -> path: "/users"         (path only, no query string)
