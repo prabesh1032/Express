@@ -1,5 +1,6 @@
 //express give middleware, error handle, easy and better routing etc which make easy 
 import express from "express";
+import studentRoute from "./routes/student.route.js";
 const app = express();
 //parse rqr raw json data=>{}=>req.body.
 app.use(express.json());
@@ -127,76 +128,7 @@ app.post("/users/create", (req, res) => {
 //rest api of students
 
 
-// fake database
-let students = [
-    { _id: 1, name: "Ram",     email: "ram@gmail.com",     faculty: "BIT",  roll: 1 },
-    { _id: 2, name: "Sita",    email: "sita@gmail.com",    faculty: "BCA",  roll: 2 },
-    { _id: 3, name: "Prabesh", email: "prabesh@gmail.com", faculty: "BITM", roll: 17 },
-];
 
 
-// GET /students — get all students
-app.get("/students", (req, res) => {
-    res.status(200).json({
-        message: "all students fetched",
-        status: "success",
-        data: students,
-    });
-});
-
-// GET /students/:id — get student by id
-app.get("/students/:id", (req, res) => {
-    const id = req.params.id;
-    // db query -> find student by id
-    res.status(200).json({
-        message: `student with id ${id} fetched`,
-        status: "success",
-        data: { _id: id, name: "Ram", email: "ram@gmail.com", faculty: "BIT", roll: 1 },
-    });
-});
-
-// POST /students — create student
-app.post("/students", (req, res) => {
-    console.log(req.body); // { name, email, faculty, roll }
-    const { name, email, faculty, roll } = req.body;
-    // db query -> create student
-    res.status(201).json({
-        message: "student created",
-        status: "success",
-        data: { name, email, faculty, roll },
-    });
-});
-
-// PUT /students/:id — full update
-app.put("/students/:id", (req, res) => {
-    const id = req.params.id;
-    const { name, email, faculty, roll } = req.body;
-    // db query -> replace entire student
-    res.status(200).json({
-        message: `student ${id} updated`,
-        status: "success",
-        data: { _id: id, name, email, faculty, roll },
-    });
-});
-
-// PATCH /students/:id — partial update
-app.patch("/students/:id", (req, res) => {
-    const id      = req.params.id;
-    const updates = req.body;
-    // db query -> update only sent fields
-    res.status(200).json({
-        message: `student ${id} partially updated`,
-        status: "success",
-        data: updates,
-    });
-});
-
-// DELETE /students/:id — delete student
-app.delete("/students/:id", (req, res) => {
-    const id = req.params.id;
-    // db query -> delete student
-    res.status(200).json({
-        message: `student ${id} deleted`,
-        status: "success",
-    });
-});
+//express router
+app.use("/students", studentRoute);
