@@ -30,7 +30,7 @@ export const getAllBlogs = (req, res) => {
 export const getBlogbyID = (req, res) => {
     const id = parseInt(req.params.id); // ← Convert to number
     const blog = blogs.find(blog => blog._id === id); // ← Use ===
-
+e
     if (!blog) {
         return res.status(404).json({
             message: `blog with id ${id} not found`,

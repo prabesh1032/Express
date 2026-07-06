@@ -2,6 +2,7 @@
 import express from "express";
 import studentRoute from "./routes/student.route.js";
 import blogRoute from "./routes/blog.route.js";
+import productRoute from "./routes/product.route.js";
 const app = express();
 //parse rqr raw json data=>{}=>req.body.
 app.use(express.json());
@@ -72,11 +73,6 @@ app.get("/", (req, res) => {
 
 
 
-//listening in port
-app.listen(8080, () => {
-    console.log(`server is running at http://localhost:8080`);
-    console.log("press ctrl +c to close the server")
-});
 
 
 //express js
@@ -86,24 +82,24 @@ app.listen(8080, () => {
 //req.method=> req method => get, post ,put, patch, delete
 //req.params=> it will give route parameter. route parameter means dynamic route .
 //read(get)/users
-app.get("/users/:id", (req, res) => {
-    //console.log(req.params);
-    const id = req.params.id;
-    //const{id, something id,...... }= req.params//this is object destructuring
-    res.send(`<h1>User with id:${id}.</h1>`);
-})
-// //create(post)/users
-// app.post("/users/create", (req, res) => {
-//     res.send("<h1>User creates</h1>")
-// }) //we dont need params in post.
-app.put("/users/:id", (req, res) => {
-    const id = req.params.id;
-    res.send(`<h1>User update with id:${id}.</h1>`);
-})
-app.delete("/users/:id", (req, res) => {
-    const id = req.params.id;
-    res.send(`<h1>User  delete with id:${id}.</h1>`);
-})
+// app.get("/users/:id", (req, res) => {
+//     //console.log(req.params);
+//     const id = req.params.id;
+//     //const{id, something id,...... }= req.params//this is object destructuring
+//     res.send(`<h1>User with id:${id}.</h1>`);
+// })
+// // //create(post)/users
+// // app.post("/users/create", (req, res) => {
+// //     res.send("<h1>User creates</h1>")
+// // }) //we dont need params in post.
+// app.put("/users/:id", (req, res) => {
+//     const id = req.params.id;
+//     res.send(`<h1>User update with id:${id}.</h1>`);
+// })
+// app.delete("/users/:id", (req, res) => {
+//     const id = req.params.id;
+//     res.send(`<h1>User  delete with id:${id}.</h1>`);
+// })
 
 //req.query=>query parameter=>it is also object{}.
 //https://daraz.com/products?name=abc&category-xyz&page=1&limit=10.//url shape
@@ -128,9 +124,15 @@ app.post("/users/create", (req, res) => {
 
 //rest api of students
 
+//listening in port
+app.listen(8080, () => {
+    console.log(`server is running at http://localhost:8080`);
+    console.log("press ctrl +c to close the server")
+});
 
 
 
 //express router
 app.use("/students", studentRoute);
 app.use("/blogs", blogRoute);
+app.use("/products", productRoute);
