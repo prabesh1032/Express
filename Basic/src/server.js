@@ -1,6 +1,7 @@
 //express give middleware, error handle, easy and better routing etc which make easy 
 import express from "express";
 import studentRoute from "./routes/student.route.js";
+import blogRoute from "./routes/blog.route.js";
 const app = express();
 //parse rqr raw json data=>{}=>req.body.
 app.use(express.json());
@@ -36,38 +37,38 @@ app.get("/", (req, res) => {
 // })
 
 //get products
-app.get("/products/", (req, res) => {
-    res.send("<h1>All Products </h1>")
-})
+// app.get("/products/", (req, res) => {
+//     res.send("<h1>All Products </h1>")
+// })
 
-//get/products with id
-app.get("/products/:id", (req, res) => {
-    const id = req.params.id;
-    res.send(`<h1>Products with id ${id}</h1>`);
-})
-//create(post)/products
-app.post("/products/create", (req, res) => {
-    res.send("<h1>Products creates</h1>")
-})
-//update(put)/products
-app.put("/products/:id", (req, res) => {
-    const id = req.params.id;
-    res.send(`<h1>Products with id ${id} updated.</h1>`);
-})
-//delete(delete)/products
-app.delete("/products/:id", (req, res) => {
-    const id = req.params.id;
-    res.send(`<h1>Products with id${id} deleted.</h1>`);
-})
+// //get/products with id
+// app.get("/products/:id", (req, res) => {
+//     const id = req.params.id;
+//     res.send(`<h1>Products with id ${id}</h1>`);
+// })
+// //create(post)/products
+// app.post("/products/create", (req, res) => {
+//     res.send("<h1>Products creates</h1>")
+// })
+// //update(put)/products
+// app.put("/products/:id", (req, res) => {
+//     const id = req.params.id;
+//     res.send(`<h1>Products with id ${id} updated.</h1>`);
+// })
+// //delete(delete)/products
+// app.delete("/products/:id", (req, res) => {
+//     const id = req.params.id;
+//     res.send(`<h1>Products with id${id} deleted.</h1>`);
+// })
 
-//get posts
-app.get("/posts", (req, res) => {
-    res.send("<h1>All Posts</h1>");
-})
-//get comments
-app.get("/comments", (req, res) => {
-    res.send("<h1>All Comments</h1>");
-})
+// //get posts
+// app.get("/posts", (req, res) => {
+//     res.send("<h1>All Posts</h1>");
+// })
+// //get comments
+// app.get("/comments", (req, res) => {
+//     res.send("<h1>All Comments</h1>");
+// })
 
 
 
@@ -132,3 +133,4 @@ app.post("/users/create", (req, res) => {
 
 //express router
 app.use("/students", studentRoute);
+app.use("/blogs", blogRoute);
