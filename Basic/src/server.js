@@ -3,6 +3,7 @@ import express from "express";
 import studentRoute from "./routes/student.route.js";
 import blogRoute from "./routes/blog.route.js";
 import productRoute from "./routes/product.route.js";
+import userRoute from "./routes/user.route.js";
 const app = express();
 //parse rqr raw json data=>{}=>req.body.
 app.use(express.json());
@@ -136,3 +137,4 @@ app.listen(8080, () => {
 app.use("/students", studentRoute);
 app.use("/blogs", blogRoute);
 app.use("/products", productRoute);
+app.use("/users", userRoute);
