@@ -1,24 +1,20 @@
-//data of users
+// Data of users
 let users = [{
-        _id: 1,
-        name: "Ram",
-        email: "ram@example.com"
-    },
-    {
-        _id: 2,
-        name: "Shyam",
-        email: "shyam@example.com"
-    },
-    {
-        _id: 3,
-        name: "Hari",
-        email: "hari@example.com"
-    }
-];
-
+    _id: 1,
+    name: "Ram",
+    email: "ram@example.com"
+}, {
+    _id: 2,
+    name: "Shyam",
+    email: "shyam@example.com"
+}, {
+    _id: 3,
+    name: "Hari",
+    email: "hari@example.com"
+}];
 
 export const getAllUsers = (req, res) => {
-    console.log(req.user); //taking user from middleware
+    console.log(req.user); // Taking user from middleware
     res.status(200).json({
         message: "all users fetched",
         status: "success",
@@ -41,12 +37,10 @@ export const getUserbyID = (req, res) => {
         data: user
     });
 }
+
 export const createUser = (req, res) => {
     console.log(req.body);
-    const {
-        name,
-        email
-    } = req.body;
+    const { name, email } = req.body;
     const newUser = {
         _id: users.length + 1,
         name,
@@ -59,30 +53,32 @@ export const createUser = (req, res) => {
         data: newUser
     });
 }
+
 export const updateUser = (req, res) => {
     const id = parseInt(req.params.id);
-    const {
-        name,
-        email
-    } = req.body;
+    const { name, email } = req.body;
     const index = users.findIndex(user => user._id === id);
+    
     if (index === -1) {
         return res.status(404).json({
             message: `user with id ${id} not found`,
             status: "error"
         });
     }
+    
     users[index] = {
-        ...users[index],
-        name,
-        email
+        _id: id,
+        name: name || users[index].name,    // Keep old name if not provided
+        email: email || users[index].email  // Keep old email if not provided
     };
+    
     res.status(200).json({
         message: `user with id ${id} updated`,
         status: "success",
         data: users[index]
     });
 }
+
 export const deleteUser = (req, res) => {
     const id = parseInt(req.params.id);
     const index = users.findIndex(user => user._id === id);

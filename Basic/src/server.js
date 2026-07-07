@@ -4,9 +4,11 @@ import studentRoute from "./routes/student.route.js";
 import blogRoute from "./routes/blog.route.js";
 import productRoute from "./routes/product.route.js";
 import userRoute from "./routes/user.route.js";
+import logger from "../middleware/logger.js";
 const app = express();
 //parse rqr raw json data=>{}=>req.body.
 app.use(express.json());
+app.use(logger);
 // //express make multiples handlers for particular requests which make easy to make route.
 //get/users=>handlers1
 //get/products=>handlers2
@@ -160,15 +162,12 @@ app.listen(8080, () => {
     console.log(`server is running at http://localhost:8080`);
     console.log("press ctrl +c to close the server")
 });
-
-
-
 //express router
 app.use("/students", studentRoute);
 app.use("/blogs", blogRoute);
 app.use("/products", productRoute);
 app.use("/users", (req, res, next) => {
-        console.log("path from route",req.path);
+        console.log("path from route", req.path);
         next();
     },
     userRoute);

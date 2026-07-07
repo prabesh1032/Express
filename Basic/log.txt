@@ -1,0 +1,12 @@
+GET on /blogs at 7/7/2026, 6:32:26 PM by ::1
+GET on /products/10 at 7/7/2026, 6:32:55 PM by ::1
+GET on /products/1 at 7/7/2026, 6:33:02 PM by ::1
+POST on /products/create at 7/7/2026, 6:33:11 PM by ::1
+POST on /products at 7/7/2026, 6:35:59 PM by ::1
+PUT on /products/2 at 7/7/2026, 6:38:57 PM by ::1
+PUT on /products/2 at 7/7/2026, 6:43:17 PM by ::1
+PUT on /products/2 at 7/7/2026, 6:45:10 PM by ::1
+DELETE on /products/10 at 7/7/2026, 6:45:46 PM by ::1
+DELETE on /products/1 at 7/7/2026, 6:45:54 PM by ::1
+GET on /students/6 at 7/7/2026, 6:46:04 PM by ::1
+GET on /students/45 at 7/7/2026, 6:46:11 PM by ::1

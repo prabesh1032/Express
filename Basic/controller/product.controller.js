@@ -67,25 +67,24 @@ export const createProduct = (req, res) => {
 }
 export const updateProduct = (req, res) => {
     const id = parseInt(req.params.id);
+    const { name, price, brand, description } = req.body;
     const index = products.findIndex(product => product._id === id);
+    
     if (index === -1) {
         return res.status(404).json({
             message: `product with id ${id} not found`,
             status: "error"
         });
     }
+    
     products[index] = {
-        // _id: id,
-        // name: req.body.name,
-        // price: req.body.price,
-        // brand: req.body.brand,  
-        // description: req.body.description
         _id: id,
-        name,
-        price,
-        brand,
-        description
-    } = req.body; //this is object destructuring. we can use this instead of above code.
+        name: name || products[index].name,
+        price: price || products[index].price,
+        brand: brand || products[index].brand,
+        description: description || products[index].description
+    };
+    
     res.status(200).json({
         message: `product with id ${id} updated`,
         status: "success",
