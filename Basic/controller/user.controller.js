@@ -15,7 +15,10 @@ let users = [{
         email: "hari@example.com"
     }
 ];
+
+
 export const getAllUsers = (req, res) => {
+    console.log(req.user); //taking user from middleware
     res.status(200).json({
         message: "all users fetched",
         status: "success",

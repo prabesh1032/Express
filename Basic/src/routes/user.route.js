@@ -8,7 +8,13 @@ import {
 } from "../../controller/user.controller.js";
 const router = express.Router();
 
-router.get("/", getAllUsers);
+//route level middleware
+const mid = (req, res, next) => {
+    console.log("route level", req.user);
+    next();
+};
+
+router.get("/", mid, getAllUsers);
 router.get("/:id", getUserbyID);
 router.post("/", createUser);
 router.put("/:id", updateUser);

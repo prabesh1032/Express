@@ -15,6 +15,36 @@ app.use(express.json());
 //app.method(path,handler)
 
 
+//middleware
+//application l;evel moiddleware
+app.use((req, res, next) => {
+    console.log("middleware 1");
+    req.user = {
+        name: "john",
+    };
+    next();
+});
+app.use((req, res, next) => {
+    console.log("middleware 2", req.user);
+    req.isAuthenticated = true;
+    next();
+});
+app.use((req, res, next) => {
+    console.log("middleware 5", req.user);
+    if (req.isAuthenticated) {
+        next();
+    } else {
+        res.status(401).json({
+            message: "unauthorized.acess denied"
+        });
+    }
+});
+app.use((req, res, next) => {
+    console.log("middleware 3", req.user);
+    next();
+});
+
+
 //get/
 app.get("/", (req, res) => {
     res.send("<h1>Home pge</h1>");
@@ -105,23 +135,23 @@ app.get("/", (req, res) => {
 //req.query=>query parameter=>it is also object{}.
 //https://daraz.com/products?name=abc&category-xyz&page=1&limit=10.//url shape
 //all users with query
-app.get("/users", (req, res) => {
-    console.log("query is:", req.query);
-    console.log("url is:", req.url);
-    console.log("path is:", req.path);
-    console.log("original url is:", req.originalUrl);
+// app.get("/users", (req, res) => {
+//     console.log("query is:", req.query);
+//     console.log("url is:", req.url);
+//     console.log("path is:", req.path);
+//     console.log("original url is:", req.originalUrl);
 
-    res.send(`<h1>All users</h1>`);
-})
+//     res.send(`<h1>All users</h1>`);
+// })
 //query=>for filter
 //param=>for dynamic
 //body=> for sending data 
 
 //create(post)/users
-app.post("/users/create", (req, res) => {
-    console.log(req.body);
-    res.send("<h1>User creates</h1>")
-}) //we dont need params in post.
+// app.post("/users/create", (req, res) => {
+//     console.log(req.body);
+//     res.send("<h1>User creates</h1>")
+// }) //we dont need params in post.
 
 //rest api of students
 
@@ -137,4 +167,8 @@ app.listen(8080, () => {
 app.use("/students", studentRoute);
 app.use("/blogs", blogRoute);
 app.use("/products", productRoute);
-app.use("/users", userRoute);
+app.use("/users", (req, res, next) => {
+        console.log("path from route",req.path);
+        next();
+    },
+    userRoute);
