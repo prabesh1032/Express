@@ -34,3 +34,7 @@ POST on /users at 7/7/2026, 7:15:56 PM by ::1
 PUT on /users/4 at 7/7/2026, 7:16:10 PM by ::1
 PUT on /users/4 at 7/7/2026, 7:16:36 PM by ::1
 DELETE on /users/4 at 7/7/2026, 7:17:03 PM by ::1
+GET on / at 7/8/2026, 1:39:01 PM by ::1
+GET on / at 7/8/2026, 1:59:31 PM by ::1
+GET on / at 7/8/2026, 2:00:03 PM by ::1
+GET on / at 7/8/2026, 2:00:44 PM by ::1

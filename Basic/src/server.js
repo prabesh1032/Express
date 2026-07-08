@@ -9,7 +9,7 @@ const app = express();
 //parse rqr raw json data=>{}=>req.body.
 app.use(express.json());
 app.use(logger);
-// //express make multiples handlers for particular requests which make easy to make route.
+// //express make multiples handlers for mparticular requests which make easy to make route.
 //get/users=>handlers1
 //get/products=>handlers2
 //post/users=>handlers3
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 });
 app.use((req, res, next) => {
     console.log("middleware 2", req.user);
-    req.isAuthenticated = true;
+    req.isAuthenticated = false;
     next();
 });
 app.use((req, res, next) => {
@@ -36,15 +36,20 @@ app.use((req, res, next) => {
     if (req.isAuthenticated) {
         next();
     } else {
-        res.status(401).json({
-            message: "unauthorized.acess denied"
+        next({
+            message: "Unauthorized,Access denied",
+            ststusCode: 401,
+            ststus: "fail",
         });
+
     }
 });
 app.use((req, res, next) => {
     console.log("middleware 3", req.user);
     next();
 });
+
+
 
 
 //get/
@@ -155,13 +160,7 @@ app.get("/", (req, res) => {
 //     res.send("<h1>User creates</h1>")
 // }) //we dont need params in post.
 
-//rest api of students
 
-//listening in port
-app.listen(8080, () => {
-    console.log(`server is running at http://localhost:8080`);
-    console.log("press ctrl +c to close the server")
-});
 //express router
 app.use("/students", studentRoute);
 app.use("/blogs", blogRoute);
@@ -171,3 +170,23 @@ app.use("/users", (req, res, next) => {
         next();
     },
     userRoute);
+
+//listening in port
+app.listen(8080, () => {
+    console.log(`server is running at http://localhost:8080`);
+    console.log("press ctrl +c to close the server")
+});
+
+
+//error handling middleware
+app.use((error, req, res, next) => {
+    console.log("error handler");
+    console.log(error);
+    res.status(error?.statusCode ?? 500).json({
+        message: error?.message ?? "internal sertver error",
+        status: error?.status ?? "error",
+        sucess: false,
+        data: "null",
+    });
+
+});
