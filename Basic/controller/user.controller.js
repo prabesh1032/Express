@@ -30,21 +30,6 @@ const userSchema = new mongoose.Schema({
 //user model
 const User = mongoose.model('user', userSchema); //user become users automatically by mongoose
 
-// // Data of users
-// let users = [{
-//     _id: 1,
-//     name: "Ram",
-//     email: "ram@example.com"
-// }, {
-//     _id: 2,
-//     name: "Shyam",
-//     email: "shyam@example.com"
-// }, {
-//     _id: 3,
-//     name: "Hari",
-//     email: "hari@example.com"
-// }];
-
 export const getAllUsers = async (req, res) => {
 
     try {
@@ -69,7 +54,7 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserbyID = async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
+        const id = req.params.id;
         const user = await User.findOne({
             _id: id
         });
@@ -98,68 +83,139 @@ export const getUserbyID = async (req, res) => {
 
 
 export const createUser = async (req, res) => {
-    //user.create({name,email,password}),
-    //await User.create(id,{name,email,password})\
-    //await User.findByIDandUpdate(id,{nazme,email,password})
-    //await User.findByIdAndDelete(id)
-    console.log(req.body);
-    const {
-        name,
-        email
-    } = req.body;
-    const newUser = {
-        _id: users.length + 1,
-        name,
-        email
-    };
-    users.push(newUser);
-    res.status(201).json({
-        message: "user created",
-        status: "success",
-        data: newUser
-    });
-}
+    try {
+        const {
+            name,
+            email,
+            password,
+            phone
+        } = req.body;
 
-export const updateUser = (req, res) => {
-    const id = parseInt(req.params.id);
-    const {
-        name,
-        email
-    } = req.body;
-    const index = users.findIndex(user => user._id === id);
+        // Check if user already exists
+        const existingUser = await User.findOne({
+            email
+        });
+        if (existingUser) {
+            return res.status(400).json({
+                message: "User with this email already exists",
+                status: "error",
+                data: null,
+            });
+        }
 
-    if (index === -1) {
-        return res.status(404).json({
-            message: `user with id ${id} not found`,
-            status: "error"
+        const newUser = await User.create({
+            name,
+            email,
+            password,
+            phone: phone || null
+        });
+
+        res.status(201).json({
+            message: "user created successfully",
+            status: "success",
+            data: newUser
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Something went wrong",
+            status: "error",
+            data: null,
         });
     }
-
-    users[index] = {
-        _id: id,
-        name: name || users[index].name, // Keep old name if not provided
-        email: email || users[index].email // Keep old email if not provided
-    };
-
-    res.status(200).json({
-        message: `user with id ${id} updated`,
-        status: "success",
-        data: users[index]
-    });
 }
+//user.create({name,email,password}),
+//await User.create(id,{name,email,password})\
+//await User.findByIDandUpdate(id,{nazme,email,password})
+//await User.findByIdAndDelete(id)
 
-export const deleteUser = (req, res) => {
-    const id = parseInt(req.params.id);
-    const index = users.findIndex(user => user._id === id);
-    if (index === -1) {
-        return res.status(404).json({
-            message: `user with id ${id} not found`,
-            status: "error"
+export const updateUser = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const {
+            name,
+            email,
+            password,
+            phone
+        } = req.body;
+
+        // Check if user exists
+        const existingUser = await User.findById(id);
+        if (!existingUser) {
+            return res.status(404).json({
+                message: `user with id ${id} not found`,
+                status: "error",
+                data: null,
+            });
+        }
+
+        // Check if email is being changed and if it's already taken
+        if (email && email !== existingUser.email) {
+            const emailExists = await User.findOne({
+                email
+            });
+            if (emailExists) {
+                return res.status(400).json({
+                    message: "Email already in use",
+                    status: "error",
+                    data: null,
+                });
+            }
+        }
+
+        // Update user
+        const updatedUser = await User.findByIdAndUpdate(
+            id, {
+                name: name || existingUser.name,
+                email: email || existingUser.email,
+                password: password || existingUser.password,
+                phone: phone || existingUser.phone
+            }, {
+                new: true,
+                runValidators: true
+            } // To ensure that the updated data follows the schema validation rules
+        );
+
+        res.status(200).json({
+            message: `user with id ${id} updated`,
+            status: "success",
+            data: updatedUser
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Something went wrong",
+            status: "error",
+            data: null,
         });
     }
-    users.splice(index, 1);
-    res.status(200).json({
-        message: `user with id ${id} deleted`,
-        status: "success"
-    });
+}
+
+export const deleteUser = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Check if user exists
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({
+                message: `user with id ${id} not found`,
+                status: "error",
+                data: null,
+            });
+        }
+
+        // Delete user
+        await User.findByIdAndDelete(id);
+
+        res.status(200).json({
+            message: `user with id ${id} deleted`,
+            status: "success",
+            data: null,
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Something went wrong",
+            status: "error",
+            data: null,
+        });
+    }
 }

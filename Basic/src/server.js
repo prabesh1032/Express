@@ -44,7 +44,7 @@ app.use((req, res, next) => {
 });
 app.use((req, res, next) => {
     console.log("middleware 2", req.user);
-    req.isAuthenticated = false;
+    req.isAuthenticated = true;//put false to check error handling
     next();
 });
 app.use((req, res, next) => {
