@@ -5,7 +5,23 @@ import blogRoute from "./routes/blog.route.js";
 import productRoute from "./routes/product.route.js";
 import userRoute from "./routes/user.route.js";
 import logger from "../middleware/logger.js";
+import mongoose from "mongoose";
 const app = express();
+
+//connect mongodb database
+const DB_URL = "mongodb://localhost:27017";
+//const DB_URL = "mongodb://localhost:27017/first_db";//we can give directly database nbame here or,
+mongoose.connect(DB_URL, {
+    dbName: "first_db",
+}).then(() => {
+    console.log("database connected");
+}).catch((error) => {
+    console.log("-------database connection error------");
+    console.log(error);
+});
+//next step is to define scehma
+
+
 //parse rqr raw json data=>{}=>req.body.
 app.use(express.json());
 app.use(logger);
