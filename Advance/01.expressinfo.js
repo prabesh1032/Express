@@ -204,7 +204,7 @@
 
 // Q3: Why use Express over raw http module?
 //     -> Clean routing (app.get instead of if/else chains)
-//     -> Built-in body parsing (express.json())
+//     -> Built-in body parsing (express.json())// it convert json structure data into object
 //     -> Middleware support, centralized error handling
 
 // Q4: What is a REST API?

@@ -5,7 +5,7 @@
 
 import express from "express";
 const app = express();
-app.use(express.json()); // parse raw JSON data -> req.body
+app.use(express.json()); // parse raw JSON data -> req.body// it convert json structure data into object
 
 
 // ============================================================
